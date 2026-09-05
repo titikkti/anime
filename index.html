@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WibuSekai - Bộ sưu tập Anime</title>
+    
+    <!-- PHẦN CSS (Làm đẹp giao diện) -->
+    <style>
+        /* Reset cơ bản */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1a1a2e; /* Màu nền tối xanh đậm */
+            color: #e94560; /* Màu chữ hồng neon */
+            text-align: center;
+        }
+
+        header {
+            padding: 40px 20px;
+            background-color: #16213e;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: #a2a8d3;
+            font-size: 1.2rem;
+        }
+
+        /* Lưới trưng bày ảnh/video */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .gallery-item {
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.2);
+            transition: transform 0.3s ease;
+            background: #0f3460;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 25px rgba(233, 69, 96, 0.5);
+        }
+
+        .gallery-item img, 
+        .gallery-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .zoomable {
+            cursor: pointer;
+        }
+
+        /* Kiểu dáng cho Hộp thoại phóng to ảnh (Modal) */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(0,0,0,0.9); 
+        }
+
+        .modal-content {
+            margin: auto;
+            display: block;
+            max-width: 90%;
+            max-height: 90%;
+            position: relative;
+            top: 50%;
+            transform: translateY(-50%);
+            border-radius: 10px;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        footer {
+            padding: 20px;
+            background-color: #16213e;
+            color: #a2a8d3;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- PHẦN HTML (Nội dung trang web) -->
+    <header>
+        <h1>🌸 WibuSekai 🌸</h1>
+        <p>Nơi lưu giữ những khoảnh khắc Anime tuyệt đẹp</p>
+    </header>
+
+    <main>
+        <section class="gallery">
+            <!-- Khu vực chứa Ảnh 1 -->
+            <div class="gallery-item">
+                <img src="https://i.pinimg.com/736x/8f/a0/0b/8fa00b70dcb06579cf4356ab0cf0ed82.jpg" alt="Anime Image 1" class="zoomable">
+            </div>
+            
+            <!-- Khu vực chứa Ảnh 2 -->
+            <div class="gallery-item">
+                <img src="https://i.pinimg.com/736x/d4/ec/bf/d4ecbf940d90890a8a65ba7e954546b5.jpg" alt="Anime Image 2" class="zoomable">
+            </div>
+
+            <!-- Khu vực chứa Video -->
+            <div class="gallery-item">
+                <video controls>
+                    <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+                    Trình duyệt của bạn không hỗ trợ video.
+                </video>
+            </div>
+        </section>
+    </main>
+
+    <!-- Hộp thoại để phóng to ảnh khi click -->
+    <div id="image-modal" class="modal">
+        <span class="close-btn">&times;</span>
+        <img class="modal-content" id="zoomed-img">
+    </div>
+
+    <footer>
+        <p>© 2026 Tạo bởi [Tên của bạn] - Wibu Never Die ❤️</p>
+    </footer>
+
+    <!-- PHẦN JAVASCRIPT (Tạo hiệu ứng tương tác) -->
+    <script>
+        // Lấy các phần tử cần thiết
+        const modal = document.getElementById("image-modal");
+        const modalImg = document.getElementById("zoomed-img");
+        const images = document.querySelectorAll(".zoomable");
+        const closeBtn = document.querySelector(".close-btn");
+
+        // Duyệt qua từng ảnh và thêm sự kiện click
+        images.forEach(img => {
+            img.addEventListener("click", function() {
+                modal.style.display = "block";
+                modalImg.src = this.src; // Lấy nguồn ảnh hiện tại đưa vào modal
+            });
+        });
+
+        // Sự kiện đóng ảnh khi bấm vào nút X
+        closeBtn.addEventListener("click", function() {
+            modal.style.display = "none";
+        });
+
+        // Đóng ảnh khi bấm ra ngoài vùng ảnh
+        modal.addEventListener("click", function(event) {
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        });
+    </script>
+</body>
+</html>
