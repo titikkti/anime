@@ -5,90 +5,137 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WibuSekai - Kho Tàng Anime</title>
     
-    <!-- Thư viện PapaParse để đọc dữ liệu từ Google Sheets -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #1a1a2e; color: #fff; text-align: center; }
         
-        header { padding: 50px 20px; background: linear-gradient(135deg, #16213e, #0f3460); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); margin-bottom: 30px; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, sans-serif; 
+            background-color: #1a1a2e; /* Nền mặc định nếu không có ảnh */
+            color: #fff; 
+            text-align: center;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        
+        /* Làm mờ nền sau để dễ đọc chữ */
+        .overlay {
+            background-color: rgba(26, 26, 46, 0.85);
+            min-height: 100vh;
+        }
+        
+        header { padding: 50px 20px; background: linear-gradient(135deg, rgba(22, 33, 62, 0.9), rgba(15, 52, 96, 0.9)); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); margin-bottom: 30px; }
         header h1 { font-size: 3.5rem; color: #e94560; text-shadow: 0 0 10px rgba(233, 69, 96, 0.5); margin-bottom: 10px; }
         header p { color: #a2a8d3; font-size: 1.2rem; font-style: italic; }
 
         .gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; padding: 20px 40px; max-width: 1200px; margin: 0 auto; }
         
-        .anime-card { background-color: #16213e; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: transform 0.3s, box-shadow 0.3s; }
-        .anime-card:hover { transform: translateY(-10px); box-shadow: 0 10px 25px rgba(233, 69, 96, 0.4); }
+        .anime-card { background-color: rgba(22, 33, 62, 0.95); border-radius: 15px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.5); transition: transform 0.3s, box-shadow 0.3s; }
+        .anime-card:hover { transform: translateY(-10px); box-shadow: 0 10px 25px rgba(233, 69, 96, 0.6); }
         .anime-card img { width: 100%; height: 350px; object-fit: cover; border-bottom: 3px solid #e94560; }
         
         .card-info { padding: 20px 15px; }
         .card-info h3 { font-size: 1.3rem; margin-bottom: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        .watch-btn { display: inline-block; background-color: #e94560; color: #fff; text-decoration: none; padding: 10px 25px; border-radius: 25px; font-weight: bold; transition: all 0.3s; }
+        .watch-btn { display: inline-block; background-color: #e94560; color: #fff; text-decoration: none; padding: 10px 25px; border-radius: 25px; font-weight: bold; transition: all 0.3s; cursor: pointer;}
         .watch-btn:hover { background-color: #ff2a4b; box-shadow: 0 0 15px #ff2a4b; transform: scale(1.05); }
 
-        footer { padding: 25px; background-color: #0f3460; color: #a2a8d3; margin-top: 50px; font-size: 0.9rem; }
-        
-        /* Hiệu ứng load (chờ tải dữ liệu) */
+        footer { padding: 25px; background-color: rgba(15, 52, 96, 0.9); color: #a2a8d3; margin-top: 50px; font-size: 0.9rem; }
         #loading { font-size: 1.5rem; color: #e94560; margin: 50px 0; font-weight: bold; }
     </style>
 </head>
 <body>
+    <div class="overlay">
+        <header>
+            <h1>🌸 WibuSekai 🌸</h1>
+            <p>Thế giới Anime thu nhỏ của riêng bạn</p>
+        </header>
 
-    <header>
-        <h1>🌸 WibuSekai 🌸</h1>
-        <p>Thế giới Anime thu nhỏ của riêng bạn</p>
-    </header>
+        <main>
+            <div id="loading">⏳ Đang kết nối dữ liệu...</div>
+            <section class="gallery" id="anime-gallery"></section>
+        </main>
 
-    <main>
-        <!-- Chữ Đang tải sẽ hiện ra lúc web đang lấy dữ liệu từ Google Sheets -->
-        <div id="loading">⏳ Đang tải dữ liệu từ kho...</div>
-        
-        <!-- Các thẻ phim sẽ tự động được thêm vào đây -->
-        <section class="gallery" id="anime-gallery"></section>
-    </main>
-
-    <footer>
-        <p>© 2026 Tạo bởi [Tên của bạn] - Wibu Never Die ❤️</p>
-    </footer>
+        <footer>
+            <p>© 2026 - Wibu Never Die ❤️</p>
+        </footer>
+    </div>
 
     <script>
         // -------------------------------------------------------------
         // DÁN ĐƯỜNG LINK GOOGLE SHEETS (ĐUÔI .CSV) CỦA BẠN VÀO DÒNG DƯỚI NÀY
-        const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR1pKY9Rd3MiOf-MBIs-k6VvbB8dpTLQyU1H1tI6aWVcTDUNv-ZQA9YU6lNdhpLMLOXnvXL6J9FKK8I/pub?output=csv";
+        const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR1pKY9Rd3MiOf-MBIs-k6VvbB8dpTLQyU1H1tI6aWVcTDUNv-ZQA9YU6lNdhpLMLOXnvXL6J9FKK8I/pubhtml";
         // -------------------------------------------------------------
 
         const gallery = document.getElementById("anime-gallery");
         const loading = document.getElementById("loading");
 
-        // Dùng thư viện đọc file CSV
         Papa.parse(GOOGLE_SHEET_CSV_URL, {
             download: true,
             header: true,
             complete: function(results) {
                 const data = results.data;
-                loading.style.display = "none"; // Tắt chữ "Đang tải"
+                loading.style.display = "none";
+                
+                let adLinks = [];
+                let bgSet = false;
 
+                // 1. Quét dữ liệu để lấy link quảng cáo và hình nền
                 data.forEach(row => {
-                    // Kiểm tra xem dòng đó có đủ dữ liệu không (tránh dòng trống)
+                    // Cài hình nền (chỉ cần dòng nào có là lấy luôn)
+                    if (!bgSet && row.HinhNenWeb && row.HinhNenWeb.trim() !== "") {
+                        document.body.style.backgroundImage = `url('${row.HinhNenWeb.trim()}')`;
+                        document.body.style.backgroundSize = "cover";
+                        document.body.style.backgroundAttachment = "fixed";
+                        bgSet = true;
+                    }
+                    // Gom link quảng cáo vào một danh sách
+                    if (row.LinkQuangCao && row.LinkQuangCao.trim() !== "") {
+                        adLinks.push(row.LinkQuangCao.trim());
+                    }
+                });
+
+                let currentAdIndex = 0; // Biến đếm xoay vòng quảng cáo
+
+                // 2. Tạo thẻ phim
+                data.forEach(row => {
                     if(row.TenVideo && row.LinkAnh && row.LinkVideo) {
-                        // Tự động tạo thẻ HTML
                         const card = document.createElement("div");
                         card.className = "anime-card";
                         card.innerHTML = `
                             <img src="${row.LinkAnh}" alt="Ảnh bìa">
                             <div class="card-info">
                                 <h3>${row.TenVideo}</h3>
-                                <a href="${row.LinkVideo}" target="_blank" class="watch-btn">▶ Xem Ngay</a>
+                                <a class="watch-btn">▶ Xem Ngay</a>
                             </div>
                         `;
-                        gallery.appendChild(card); // Thêm thẻ vào web
+
+                        // Lập trình nút Xem ngay
+                        const btn = card.querySelector('.watch-btn');
+                        btn.addEventListener('click', function() {
+                            if (adLinks.length > 0) {
+                                // Lấy link quảng cáo hiện tại
+                                let currentAdUrl = adLinks[currentAdIndex];
+                                // Chuyển sang quảng cáo tiếp theo cho lần bấm sau (xoay vòng)
+                                currentAdIndex = (currentAdIndex + 1) % adLinks.length;
+                                
+                                // Mở video ở tab mới
+                                window.open(row.LinkVideo, '_blank');
+                                // Chuyển tab web của bạn thành quảng cáo
+                                window.location.href = currentAdUrl;
+                            } else {
+                                // Nếu không dán quảng cáo nào thì mở video bình thường
+                                window.open(row.LinkVideo, '_blank');
+                            }
+                        });
+
+                        gallery.appendChild(card);
                     }
                 });
             },
             error: function() {
-                loading.innerText = "❌ Lỗi: Không thể tải dữ liệu. Hãy kiểm tra lại link Google Sheets!";
+                loading.innerText = "❌ Lỗi: Không thể tải dữ liệu.";
             }
         });
     </script>
