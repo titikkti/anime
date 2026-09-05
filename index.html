@@ -12,14 +12,13 @@
         
         body { 
             font-family: 'Segoe UI', Tahoma, sans-serif; 
-            background-color: #1a1a2e; /* Nền mặc định nếu không có ảnh */
+            background-color: #1a1a2e; 
             color: #fff; 
             text-align: center;
             background-position: center;
             background-repeat: no-repeat;
         }
         
-        /* Làm mờ nền sau để dễ đọc chữ */
         .overlay {
             background-color: rgba(26, 26, 46, 0.85);
             min-height: 100vh;
@@ -63,10 +62,7 @@
     </div>
 
     <script>
-        // -------------------------------------------------------------
-        // DÁN ĐƯỜNG LINK GOOGLE SHEETS (ĐUÔI .CSV) CỦA BẠN VÀO DÒNG DƯỚI NÀY
-        const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR1pKY9Rd3MiOf-MBIs-k6VvbB8dpTLQyU1H1tI6aWVcTDUNv-ZQA9YU6lNdhpLMLOXnvXL6J9FKK8I/pubhtml";
-        // -------------------------------------------------------------
+        const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR1pKY9Rd3MiOf-MBIs-k6VvbB8dpTLQyU1H1tI6aWVcTDUNv-ZQA9YU6lNdhpLMLOXnvXL6J9FKK8I/pub?output=csv";
 
         const gallery = document.getElementById("anime-gallery");
         const loading = document.getElementById("loading");
@@ -81,52 +77,42 @@
                 let adLinks = [];
                 let bgSet = false;
 
-                // 1. Quét dữ liệu để lấy link quảng cáo và hình nền
                 data.forEach(row => {
-                    // Cài hình nền (chỉ cần dòng nào có là lấy luôn)
                     if (!bgSet && row.HinhNenWeb && row.HinhNenWeb.trim() !== "") {
                         document.body.style.backgroundImage = `url('${row.HinhNenWeb.trim()}')`;
                         document.body.style.backgroundSize = "cover";
                         document.body.style.backgroundAttachment = "fixed";
                         bgSet = true;
                     }
-                    // Gom link quảng cáo vào một danh sách
                     if (row.LinkQuangCao && row.LinkQuangCao.trim() !== "") {
                         adLinks.push(row.LinkQuangCao.trim());
                     }
                 });
 
-                let currentAdIndex = 0; // Biến đếm xoay vòng quảng cáo
+                let currentAdIndex = 0;
 
-                // 2. Tạo thẻ phim
                 data.forEach(row => {
-                    if(row.TenVideo && row.LinkAnh && row.LinkVideo) {
+                    if(row.TenVideo && row.LinkAnh && row.LinkVideo && row.TenVideo.trim() !== "") {
                         const card = document.createElement("div");
                         card.className = "anime-card";
                         card.innerHTML = `
-                            <img src="${row.LinkAnh}" alt="Ảnh bìa">
+                            <img src="${row.LinkAnh.trim()}" alt="Ảnh bìa" onerror="this.src='https://via.placeholder.com/300x400?text=Loi+Anh'">
                             <div class="card-info">
-                                <h3>${row.TenVideo}</h3>
+                                <h3>${row.TenVideo.trim()}</h3>
                                 <a class="watch-btn">▶ Xem Ngay</a>
                             </div>
                         `;
 
-                        // Lập trình nút Xem ngay
                         const btn = card.querySelector('.watch-btn');
                         btn.addEventListener('click', function() {
                             if (adLinks.length > 0) {
-                                // Lấy link quảng cáo hiện tại
                                 let currentAdUrl = adLinks[currentAdIndex];
-                                // Chuyển sang quảng cáo tiếp theo cho lần bấm sau (xoay vòng)
                                 currentAdIndex = (currentAdIndex + 1) % adLinks.length;
                                 
-                                // Mở video ở tab mới
-                                window.open(row.LinkVideo, '_blank');
-                                // Chuyển tab web của bạn thành quảng cáo
+                                window.open(row.LinkVideo.trim(), '_blank');
                                 window.location.href = currentAdUrl;
                             } else {
-                                // Nếu không dán quảng cáo nào thì mở video bình thường
-                                window.open(row.LinkVideo, '_blank');
+                                window.open(row.LinkVideo.trim(), '_blank');
                             }
                         });
 
@@ -135,7 +121,7 @@
                 });
             },
             error: function() {
-                loading.innerText = "❌ Lỗi: Không thể tải dữ liệu.";
+                loading.innerText = "❌ Lỗi: Không thể tải dữ liệu. Hãy kiểm tra lại link CSV!";
             }
         });
     </script>
