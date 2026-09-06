@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WibuSekai - Kho Tàng Anime</title>
+    <title>WibuSekai - Kho Tàng Anime & Truyện</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
@@ -28,16 +28,47 @@
         header h1 { font-size: 2.2rem; color: #e94560; text-shadow: 0 0 10px rgba(233, 69, 96, 0.5); margin-bottom: 5px; }
         header p { color: #a2a8d3; font-size: 0.9rem; font-style: italic; }
 
-        /* ĐIỀU CHỈNH LƯỚI HIỂN THỊ TỰ NHIÊN */
+        /* KHU VỰC NÚT CHUYỂN TAB (VIDEO / TRUYỆN) */
+        .tab-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            padding: 0 20px;
+        }
+        
+        .tab-btn {
+            background-color: transparent;
+            color: #a2a8d3;
+            border: 2px solid #e94560;
+            padding: 10px 30px;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            outline: none;
+        }
+        
+        .tab-btn:hover {
+            box-shadow: 0 0 15px rgba(233, 69, 96, 0.4);
+        }
+        
+        .tab-btn.active {
+            background-color: #e94560;
+            color: #fff;
+            box-shadow: 0 0 15px rgba(233, 69, 96, 0.6);
+        }
+
         .gallery { 
             display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); /* Độ rộng thẻ vừa phải */
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); 
             gap: 20px; 
             padding: 20px; 
             max-width: 1100px; 
             margin: 0 auto; 
             justify-content: center;
-            align-items: start; /* QUAN TRỌNG: Giúp các thẻ không bị kéo giãn cho bằng nhau, giữ chiều cao tự nhiên */
+            align-items: start; 
         }
         
         .anime-card { 
@@ -51,11 +82,10 @@
         
         .anime-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(233, 69, 96, 0.6); }
         
-        /* ẢNH TỰ ĐỘNG ĐIỀU CHỈNH CHIỀU CAO, KHÔNG BỊ CẮT XÉN */
         .anime-card img { 
             width: 100%; 
-            height: auto; /* Tự động lấy chiều cao chuẩn của ảnh gốc */
-            display: block; /* Xóa khoảng trắng thừa dưới ảnh */
+            height: auto; 
+            display: block; 
             border-bottom: 3px solid #e94560; 
         }
         
@@ -77,8 +107,17 @@
         </header>
 
         <main>
+            <!-- 2 Nút Tab -->
+            <div class="tab-container" id="tabs" style="display: none;">
+                <button class="tab-btn active" id="btn-video" onclick="switchTab('video')">📺 Kho Video</button>
+                <button class="tab-btn" id="btn-truyen" onclick="switchTab('truyen')">📚 Kho Truyện</button>
+            </div>
+
             <div id="loading">⏳ Đang kết nối dữ liệu...</div>
-            <section class="gallery" id="anime-gallery"></section>
+            
+            <!-- 2 Khu vực chứa nội dung riêng biệt -->
+            <section class="gallery" id="video-gallery"></section>
+            <section class="gallery" id="truyen-gallery" style="display: none;"></section>
         </main>
 
         <footer>
@@ -96,8 +135,25 @@
             "https://cheaplyreqainthrift.com/dv3xs68de?key=877289809972cac42e2b995f1b380545"
         ];
 
-        const gallery = document.getElementById("anime-gallery");
+        // Chức năng chuyển đổi Tab (Video / Truyện)
+        function switchTab(tabName) {
+            if (tabName === 'video') {
+                document.getElementById('video-gallery').style.display = 'grid';
+                document.getElementById('truyen-gallery').style.display = 'none';
+                document.getElementById('btn-video').classList.add('active');
+                document.getElementById('btn-truyen').classList.remove('active');
+            } else {
+                document.getElementById('video-gallery').style.display = 'none';
+                document.getElementById('truyen-gallery').style.display = 'grid';
+                document.getElementById('btn-truyen').classList.add('active');
+                document.getElementById('btn-video').classList.remove('active');
+            }
+        }
+
+        const videoGallery = document.getElementById("video-gallery");
+        const truyenGallery = document.getElementById("truyen-gallery");
         const loading = document.getElementById("loading");
+        const tabsContainer = document.getElementById("tabs");
 
         Papa.parse(GOOGLE_SHEET_CSV_URL, {
             download: true,
@@ -105,6 +161,7 @@
             complete: function(results) {
                 const data = results.data;
                 loading.style.display = "none";
+                tabsContainer.style.display = "flex"; // Hiện nút tab sau khi tải xong
                 
                 let bgSet = false;
 
@@ -119,13 +176,20 @@
 
                 data.forEach(row => {
                     if(row.TenVideo && row.LinkAnh && row.LinkVideo && row.TenVideo.trim() !== "") {
+                        // Xác định xem đây là truyện hay video dựa vào cột "Loai"
+                        let isStory = false;
+                        if (row.Loai && row.Loai.trim().toLowerCase() === "truyen") {
+                            isStory = true;
+                        }
+
                         const card = document.createElement("div");
                         card.className = "anime-card";
                         card.innerHTML = `
                             <img src="${row.LinkAnh.trim()}" alt="Ảnh bìa" onerror="this.src='https://via.placeholder.com/240x300?text=Loi+Anh'">
                             <div class="card-info">
                                 <h3>${row.TenVideo.trim()}</h3>
-                                <a class="watch-btn">▶ Xem Ngay</a>
+                                <!-- Thay đổi nút dựa vào loại nội dung -->
+                                <a class="watch-btn">${isStory ? '📖 Đọc Ngay' : '▶ Xem Ngay'}</a>
                             </div>
                         `;
 
@@ -150,7 +214,12 @@
                             }
                         });
 
-                        gallery.appendChild(card);
+                        // Phân loại thẻ vào đúng Tab
+                        if (isStory) {
+                            truyenGallery.appendChild(card);
+                        } else {
+                            videoGallery.appendChild(card);
+                        }
                     }
                 });
             },
