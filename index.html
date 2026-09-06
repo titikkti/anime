@@ -28,15 +28,16 @@
         header h1 { font-size: 2.2rem; color: #e94560; text-shadow: 0 0 10px rgba(233, 69, 96, 0.5); margin-bottom: 5px; }
         header p { color: #a2a8d3; font-size: 0.9rem; font-style: italic; }
 
-        /* KHUNG HIỂN THỊ ĐƯỢC CHỈNH THÀNH DẠNG NGANG */
+        /* ĐIỀU CHỈNH LƯỚI HIỂN THỊ TỰ NHIÊN */
         .gallery { 
             display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Nới rộng thẻ ra để vừa ảnh ngang */
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); /* Độ rộng thẻ vừa phải */
             gap: 20px; 
             padding: 20px; 
             max-width: 1100px; 
             margin: 0 auto; 
             justify-content: center;
+            align-items: start; /* QUAN TRỌNG: Giúp các thẻ không bị kéo giãn cho bằng nhau, giữ chiều cao tự nhiên */
         }
         
         .anime-card { 
@@ -50,10 +51,11 @@
         
         .anime-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(233, 69, 96, 0.6); }
         
+        /* ẢNH TỰ ĐỘNG ĐIỀU CHỈNH CHIỀU CAO, KHÔNG BỊ CẮT XÉN */
         .anime-card img { 
             width: 100%; 
-            aspect-ratio: 16 / 9; /* Ép tỷ lệ khung thành 16:9 chuẩn video */
-            object-fit: cover; /* Lấp đầy khung mà không làm méo ảnh */
+            height: auto; /* Tự động lấy chiều cao chuẩn của ảnh gốc */
+            display: block; /* Xóa khoảng trắng thừa dưới ảnh */
             border-bottom: 3px solid #e94560; 
         }
         
@@ -87,7 +89,6 @@
     <script>
         const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR1pKY9Rd3MiOf-MBIs-k6VvbB8dpTLQyU1H1tI6aWVcTDUNv-ZQA9YU6lNdhpLMLOXnvXL6J9FKK8I/pub?output=csv";
 
-        // DANH SÁCH LINK QUẢNG CÁO
         const myAdLinks = [
             "https://vt.tiktok.com/ZS9h36wYouDLb-ojzE1/",
             "https://vt.tiktok.com/ZS9hwC35QqF5E-27l2e/",
@@ -121,7 +122,7 @@
                         const card = document.createElement("div");
                         card.className = "anime-card";
                         card.innerHTML = `
-                            <img src="${row.LinkAnh.trim()}" alt="Ảnh bìa" onerror="this.src='https://via.placeholder.com/280x157?text=Loi+Anh'">
+                            <img src="${row.LinkAnh.trim()}" alt="Ảnh bìa" onerror="this.src='https://via.placeholder.com/240x300?text=Loi+Anh'">
                             <div class="card-info">
                                 <h3>${row.TenVideo.trim()}</h3>
                                 <a class="watch-btn">▶ Xem Ngay</a>
